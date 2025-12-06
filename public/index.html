@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kljun.me - Smart Trash & Crow Collection System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .emoji-header {
+            font-size: 2em;
+            margin-right: 10px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-size: 1.5em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-header .emoji {
+            font-size: 1.8em;
+            margin-right: 15px;
+        }
+
+        .section-content {
+            padding: 20px;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+
+        .bin-card {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .bin-card:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .bin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .bin-id {
+            font-size: 1.2em;
+        }
+
+        .expand-icon {
+            font-size: 1.3em;
+            transition: transform 0.3s ease;
+        }
+
+        .bin-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .bin-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .bin-card.expanded .bin-details {
+            max-height: 600px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 0.95em;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .stat-value {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .collected-items {
+            margin-top: 15px;
+        }
+
+        .collected-items-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .item-list {
+            background: white;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 0.9em;
+        }
+
+        .item-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .item-entry:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .item-count {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .crow-list {
+            background: white;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .crow-badge {
+            display: inline-block;
+            background: #764ba2;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin: 3px;
+            font-size: 0.85em;
+        }
+
+        .crow-card {
+            background: #fff9e6;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .crow-card:hover {
+            background: #fff3cd;
+            transform: translateX(5px);
+        }
+
+        .crow-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #ff6b00;
+        }
+
+        .crow-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .crow-card.expanded .crow-details {
+            max-height: 500px;
+        }
+
+        .trip-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 3px solid #ffc107;
+            font-size: 0.9em;
+        }
+
+        .trip-distance {
+            color: #ff6b00;
+            font-weight: 600;
+        }
+
+        .map-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .map-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-size: 1.5em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .map-header .emoji {
+            font-size: 1.8em;
+            margin-right: 15px;
+        }
+
+        #map {
+            height: 500px;
+            width: 100%;
+            position: relative;
+        }
+
+        .map-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            padding: 8px 15px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .toggle-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-box .emoji {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-box .number {
+            font-size: 2em;
+            font-weight: 700;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .stat-box .label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .filter-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+
+        .scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .scrollbar::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        .section-content {
+            scrollbar-color: #667eea #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="emoji-header">🐦‍⬛</span>Kljun.me</h1>
+            <p>Smart Trash Bin & Crow Collection System - Work Purpose Platform</p>
+        </header>
+
+        <div class="stats-overview">
+            <div class="stat-box">
+                <div class="emoji">🗑️</div>
+                <div class="number" id="totalBins">0</div>
+                <div class="label">Active Bins</div>
+            </div>
+            <div class="stat-box">
+                <div class="emoji">🐦</div>
+                <div class="number" id="totalCrows">0</div>
+                <div class="label">Active Crows</div>
+            </div>
+            <div class="stat-box">
+                <div class="emoji">♻️</div>
+                <div class="number" id="totalItems">0</div>
+                <div class="label">Items Collected</div>
+            </div>
+            <div class="stat-box">
+                <div class="emoji">🌍</div>
+                <div class="number" id="totalTrips">0</div>
+                <div class="label">Total Trips</div>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <div class="map-header">
+                <span class="emoji">🗺️</span>
+                Collection Map
+            </div>
+            <div class="map-toggle">
+                <div>
+                    <label style="margin-right: 10px; font-weight: 600;">View Mode:</label>
+                </div>
+                <div class="toggle-buttons">
+                    <button class="toggle-btn active" onclick="setMapMode('trips')">🛤️ Crow Trips</button>
+                    <button class="toggle-btn" onclick="setMapMode('items')">📍 Item Locations</button>
+                    <button class="toggle-btn" onclick="setMapMode('bins')">🗑️ Bin Locations</button>
+                </div>
+            </div>
+            <div id="map" class="scrollbar"></div>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🗑️</span>
+                    Smart Bins
+                </div>
+                <div class="filter-section">
+                    <label style="font-weight: 600;">Filter:</label>
+                    <button class="filter-btn active" onclick="filterBins('all')">All</button>
+                    <button class="filter-btn" onclick="filterBins('active')">Active</button>
+                    <button class="filter-btn" onclick="filterBins('low-battery')">Low Battery</button>
+                </div>
+                <div class="section-content scrollbar" id="binsContainer">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🐦</span>
+                    Crows
+                </div>
+                <div class="filter-section">
+                    <label style="font-weight: 600;">Filter:</label>
+                    <button class="filter-btn active" onclick="filterCrows('all')">All</button>
+                    <button class="filter-btn" onclick="filterCrows('active')">Active</button>
+                </div>
+                <div class="section-content scrollbar" id="crowsContainer">
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>🐦 Kljun.me © 2025 - Smart Waste Collection System | Work Purpose Only</p>
+        </footer>
+    </div>
+
+    <script>
+        let map;
+        let currentMapMode = 'trips';
+        let currentBinFilter = 'all';
+        let currentCrowFilter = 'all';
+        let markersGroup = L.featureGroup();
+
+        const database = {
+            bins: [
+                {
+                    id: 'BIN-001',
+                    battery: 85,
+                    capacity: 65,
+                    location: { x: 42.31813463524171, y: 19.079754228787486 },
+                    connectedCrows: ['CROW-001', 'CROW-002'],
+                    collectedItems: [
+                        { name: 'Cigarettes', count: 145 },
+                        { name: 'Metal Nails', count: 24 },
+                        { name: 'Plastic Bottles', count: 42 },
+                        { name: 'Aluminum Cans', count: 31 }
+                    ]
+                },
+                {
+                    id: 'BIN-002',
+                    battery: 45,
+                    capacity: 78,
+                    location: { x: 42.41277642259169, y: 18.91070321666984 },
+                    connectedCrows: ['CROW-003', 'CROW-004', 'CROW-005'],
+                    collectedItems: [
+                        { name: 'Cigarettes', count: 198 },
+                        { name: 'Plastic Bottles', count: 56 },
+                        { name: 'Metal Nails', count: 19 },
+                        { name: 'Glass Pieces', count: 12 }
+                    ]
+                },
+                {
+                    id: 'BIN-003',
+                    battery: 92,
+                    capacity: 32,
+                    location: { x: 42.76085519133679, y: 18.975326819195097 },
+                    connectedCrows: ['CROW-002', 'CROW-006'],
+                    collectedItems: [
+                        { name: 'Cigarettes', count: 87 },
+                        { name: 'Metal Nails', count: 15 },
+                        { name: 'Aluminum Cans', count: 28 }
+                    ]
+                },
+                {
+                    id: 'BIN-004',
+                    battery: 56,
+                    capacity: 45,
+                    location: { x: 42.95449855506219, y: 19.585282927781357 },
+                    connectedCrows: ['CROW-001', 'CROW-003'],
+                    collectedItems: [
+                        { name: 'Cigarettes', count: 156 },
+                        { name: 'Plastic Bottles', count: 38 },
+                        { name: 'Metal Nails', count: 22 }
+                    ]
+                }
+            ],
+            crows: [
+                {
+                    id: 'CROW-001',
+                    binId: 'BIN-001',
+                    status: 'active',
+                    trips: [
+                        { id: 'TRIP-001', startLocation: { x: 42.31813463524171, y: 19.079754228787486 }, endLocation: { x: 42.32330, y: 19.08410 }, itemsCollected: 8, distance: 245 },
+                        { id: 'TRIP-002', startLocation: { x: 42.32330, y: 19.08410 }, endLocation: { x: 42.31200, y: 19.07680 }, itemsCollected: 8, distance: 380 },
+                        { id: 'TRIP-003', startLocation: { x: 42.31200, y: 19.07680 }, endLocation: { x: 42.31950, y: 19.08200 }, itemsCollected: 8, distance: 420 },
+                        { id: 'TRIP-004', startLocation: { x: 42.31950, y: 19.08200 }, endLocation: { x: 42.32100, y: 19.07950 }, itemsCollected: 8, distance: 310 },
+                        { id: 'TRIP-005', startLocation: { x: 42.32100, y: 19.07950 }, endLocation: { x: 42.31500, y: 19.08500 }, itemsCollected: 7, distance: 285 }
+                    ]
+                },
+                {
+                    id: 'CROW-002',
+                    binId: 'BIN-001',
+                    status: 'active',
+                    trips: [
+                        { id: 'TRIP-006', startLocation: { x: 42.31813463524171, y: 19.079754228787486 }, endLocation: { x: 42.32340, y: 19.08720 }, itemsCollected: 8, distance: 510 },
+                        { id: 'TRIP-007', startLocation: { x: 42.32340, y: 19.08720 }, endLocation: { x: 42.31100, y: 19.07450 }, itemsCollected: 9, distance: 620 },
+                        { id: 'TRIP-008', startLocation: { x: 42.31100, y: 19.07450 }, endLocation: { x: 42.31950, y: 19.08150 }, itemsCollected: 8, distance: 480 }
+                    ]
+                },
+                {
+                    id: 'CROW-003',
+                    binId: 'BIN-002',
+                    status: 'active',
+                    trips: [
+                        { id: 'TRIP-009', startLocation: { x: 42.41277642259169, y: 18.91070321666984 }, endLocation: { x: 42.41850, y: 18.91350 }, itemsCollected: 8, distance: 420 },
+                        { id: 'TRIP-010', startLocation: { x: 42.41850, y: 18.91350 }, endLocation: { x: 42.41100, y: 18.90650 }, itemsCollected: 8, distance: 640 },
+                        { id: 'TRIP-011', startLocation: { x: 42.41100, y: 18.90650 }, endLocation: { x: 42.41450, y: 18.91200 }, itemsCollected: 7, distance: 380 }
+                    ]
+                },
+                {
+                    id: 'CROW-004',
+                    binId: 'BIN-002',
+                    status: 'active',
+                    trips: [
+                        { id: 'TRIP-012', startLocation: { x: 42.41277642259169, y: 18.91070321666984 }, endLocation: { x: 42.41950, y: 18.91500 }, itemsCollected: 8, distance: 550 },
+                        { id: 'TRIP-013', startLocation: { x: 42.41950, y: 18.91500 }, endLocation: { x: 42.40950, y: 18.90400 }, itemsCollected: 8, distance: 720 }
+                    ]
+                },
+                {
+                    id: 'CROW-005',
+                    binId: 'BIN-002',
+                    status: 'inactive',
+                    trips: [
+                        { id: 'TRIP-014', startLocation: { x: 42.41277642259169, y: 18.91070321666984 }, endLocation: { x: 42.41650, y: 18.91250 }, itemsCollected: 8, distance: 380 }
+                    ]
+                },
+                {
+                    id: 'CROW-006',
+                    binId: 'BIN-003',
+                    status: 'active',
+                    trips: [
+                        { id: 'TRIP-015', startLocation: { x: 42.76085519133679, y: 18.975326819195097 }, endLocation: { x: 42.76320, y: 18.97700 }, itemsCollected: 8, distance: 250 },
+                        { id: 'TRIP-016', startLocation: { x: 42.76320, y: 18.97700 }, endLocation: { x: 42.75950, y: 18.97250 }, itemsCollected: 8, distance: 380 },
+                        { id: 'TRIP-017', startLocation: { x: 42.75950, y: 18.97250 }, endLocation: { x: 42.76200, y: 18.97650 }, itemsCollected: 8, distance: 320 }
+                    ]
+                }
+            ],
+            paths: [
+                { id: 'PATH-001', tripId: 'TRIP-001', crowId: 'CROW-001', itemName: 'Cigarettes', location: { x: 42.31950, y: 19.08100 } },
+                { id: 'PATH-002', tripId: 'TRIP-001', crowId: 'CROW-001', itemName: 'Cigarettes', location: { x: 42.32080, y: 19.08250 } },
+                { id: 'PATH-003', tripId: 'TRIP-002', crowId: 'CROW-001', itemName: 'Cigarettes', location: { x: 42.31650, y: 19.07800 } },
+                { id: 'PATH-004', tripId: 'TRIP-003', crowId: 'CROW-001', itemName: 'Metal Nails', location: { x: 42.32050, y: 19.08100 } },
+                { id: 'PATH-005', tripId: 'TRIP-004', crowId: 'CROW-001', itemName: 'Cigarettes', location: { x: 42.32000, y: 19.08050 } },
+                { id: 'PATH-006', tripId: 'TRIP-006', crowId: 'CROW-002', itemName: 'Cigarettes', location: { x: 42.32200, y: 19.08600 } },
+                { id: 'PATH-007', tripId: 'TRIP-007', crowId: 'CROW-002', itemName: 'Cigarettes', location: { x: 42.31400, y: 19.07700 } },
+                { id: 'PATH-008', tripId: 'TRIP-009', crowId: 'CROW-003', itemName: 'Cigarettes', location: { x: 42.41600, y: 18.91200 } },
+                { id: 'PATH-009', tripId: 'TRIP-010', crowId: 'CROW-003', itemName: 'Cigarettes', location: { x: 42.41300, y: 18.90900 } },
+                { id: 'PATH-010', tripId: 'TRIP-012', crowId: 'CROW-004', itemName: 'Cigarettes', location: { x: 42.41750, y: 18.91350 } },
+                { id: 'PATH-011', tripId: 'TRIP-015', crowId: 'CROW-006', itemName: 'Cigarettes', location: { x: 42.76200, y: 18.97600 } },
+                { id: 'PATH-012', tripId: 'TRIP-016', crowId: 'CROW-006', itemName: 'Metal Nails', location: { x: 42.76100, y: 18.97400 } }
+            ]
+        };
+
+        function initMap() {
+            map = L.map('map').setView([42.45, 19.0], 9);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            markersGroup.addTo(map);
+            renderMapTrips();
+        }
+
+        function renderMapTrips() {
+            markersGroup.clearLayers();
+            
+            if (currentMapMode === 'trips') {
+                database.crows.forEach(crow => {
+                    crow.trips.forEach(trip => {
+                        const latlng1 = [trip.startLocation.x, trip.startLocation.y];
+                        const latlng2 = [trip.endLocation.x, trip.endLocation.y];
+                        
+                        L.polyline([latlng1, latlng2], {
+                            color: '#667eea',
+                            weight: 3,
+                            opacity: 0.7,
+                            dashArray: '5, 5'
+                        }).addTo(markersGroup).bindPopup(`Trip: ${trip.id}<br>Crow: ${crow.id}<br>Items: ${trip.itemsCollected}<br>Distance: ${trip.distance}m`);
+                        
+                        L.circleMarker(latlng1, {
+                            radius: 6,
+                            fillColor: '#ffc107',
+                            color: '#ff6b00',
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        }).addTo(markersGroup).bindPopup(`Start: ${trip.id}`);
+                        
+                        L.circleMarker(latlng2, {
+                            radius: 6,
+                            fillColor: '#28a745',
+                            color: '#20c997',
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        }).addTo(markersGroup).bindPopup(`End: ${trip.id}`);
+                    });
+                });
+            } else if (currentMapMode === 'items') {
+                database.paths.forEach(path => {
+                    const latlng = [path.location.x, path.location.y];
+                    L.marker(latlng, {
+                        icon: L.icon({
+                            iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23667eea"><circle cx="12" cy="12" r="10" fill="%23667eea"/></svg>',
+                            iconSize: [24, 24]
+                        })
+                    }).addTo(markersGroup).bindPopup(`Item: ${path.itemName}<br>Crow: ${path.crowId}<br>Trip: ${path.tripId}`);
+                });
+            } else if (currentMapMode === 'bins') {
+                database.bins.forEach(bin => {
+                    const latlng = [bin.location.x, bin.location.y];
+                    L.marker(latlng, {
+                        icon: L.icon({
+                            iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23764ba2"><path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" fill="%23764ba2"/></svg>',
+                            iconSize: [32, 32]
+                        })
+                    }).addTo(markersGroup).bindPopup(`Bin: ${bin.id}<br>Battery: ${bin.battery}%<br>Capacity: ${bin.capacity}%<br>Connected Crows: ${bin.connectedCrows.length}`);
+                });
+            }
+        }
+
+        function setMapMode(mode) {
+            currentMapMode = mode;
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderMapTrips();
+        }
+
+        function filterBins(filter) {
+            currentBinFilter = filter;
+            const section = event.target.closest('.filter-section');
+            section.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderBins();
+        }
+
+        function filterCrows(filter) {
+            currentCrowFilter = filter;
+            const section = event.target.closest('.filter-section');
+            section.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderCrows();
+        }
+
+        function renderBins() {
+            const binsContainer = document.getElementById('binsContainer');
+            binsContainer.innerHTML = '';
+
+            let filteredBins = database.bins;
+            if (currentBinFilter === 'active') {
+                filteredBins = database.bins.filter(bin => bin.battery > 0);
+            } else if (currentBinFilter === 'low-battery') {
+                filteredBins = database.bins.filter(bin => bin.battery < 50);
+            }
+
+            filteredBins.forEach(bin => {
+                const binCard = document.createElement('div');
+                binCard.className = 'bin-card';
+                binCard.innerHTML = `
+                    <div class="bin-header" onclick="toggleBinCard(this)">
+                        <span class="bin-id">🗑️ ${bin.id}</span>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                    <div class="bin-details">
+                        <div class="stat-row">
+                            <span class="stat-label">🔋 Battery Status:</span>
+                            <span class="stat-value">${bin.battery}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${bin.battery}%; background: ${bin.battery < 30 ? '#dc3545' : bin.battery < 60 ? '#ffc107' : '#28a745'};"></div>
+                        </div>
+                        
+                        <div class="stat-row" style="margin-top: 15px;">
+                            <span class="stat-label">📦 Capacity Filled:</span>
+                            <span class="stat-value">${bin.capacity}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${bin.capacity}%;"></div>
+                        </div>
+
+                        <div class="stat-row" style="margin-top: 15px;">
+                            <span class="stat-label">📍 Location:</span>
+                            <span class="stat-value">x: ${bin.location.x.toFixed(4)}, y: ${bin.location.y.toFixed(4)}</span>
+                        </div>
+
+                        <div class="collected-items">
+                            <div class="collected-items-title">📊 Collected Items (by count):</div>
+                            <div class="item-list">
+                                ${bin.collectedItems.map(item => `
+                                    <div class="item-entry">
+                                        <span class="item-name">${item.name}</span>
+                                        <span class="item-count">${item.count}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 15px;">
+                            <div class="collected-items-title">🐦 Connected Crows:</div>
+                            <div class="crow-list">
+                                ${bin.connectedCrows.map(crow => `<span class="crow-badge">${crow}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                binsContainer.appendChild(binCard);
+            });
+        }
+
+        function renderCrows() {
+            const crowsContainer = document.getElementById('crowsContainer');
+            crowsContainer.innerHTML = '';
+
+            let filteredCrows = database.crows;
+            if (currentCrowFilter === 'active') {
+                filteredCrows = database.crows.filter(crow => crow.status === 'active');
+            }
+
+            filteredCrows.forEach(crow => {
+                const crowCard = document.createElement('div');
+                crowCard.className = 'crow-card';
+                crowCard.innerHTML = `
+                    <div class="crow-header" onclick="toggleCrowCard(this)">
+                        <span>🐦 ${crow.id}</span>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                    <div class="crow-details">
+                        <div class="stat-row">
+                            <span class="stat-label">📍 Assigned Bin:</span>
+                            <span class="stat-value">${crow.binId}</span>
+                        </div>
+
+                        <div class="stat-row">
+                            <span class="stat-label">🟢 Status:</span>
+                            <span class="stat-value" style="color: ${crow.status === 'active' ? '#28a745' : '#dc3545'};">${crow.status.toUpperCase()}</span>
+                        </div>
+
+                        <div class="stat-row">
+                            <span class="stat-label">🛤️ Total Trips:</span>
+                            <span class="stat-value">${crow.trips.length}</span>
+                        </div>
+
+                        <div class="stat-row">
+                            <span class="stat-label">📦 Items Collected:</span>
+                            <span class="stat-value">${crow.trips.reduce((sum, trip) => sum + trip.itemsCollected, 0)}</span>
+                        </div>
+
+                        <div class="collected-items" style="margin-top: 15px;">
+                            <div class="collected-items-title">🗺️ Recent Trips:</div>
+                            ${crow.trips.map(trip => `
+                                <div class="trip-item">
+                                    <strong>${trip.id}</strong><br>
+                                    Items: ${trip.itemsCollected} | <span class="trip-distance">Distance: ${trip.distance}m</span><br>
+                                    From: (${trip.startLocation.x.toFixed(4)}, ${trip.startLocation.y.toFixed(4)})<br>
+                                    To: (${trip.endLocation.x.toFixed(4)}, ${trip.endLocation.y.toFixed(4)})
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                crowsContainer.appendChild(crowCard);
+            });
+        }
+
+        function toggleBinCard(header) {
+            const card = header.closest('.bin-card');
+            card.classList.toggle('expanded');
+        }
+
+        function toggleCrowCard(header) {
+            const card = header.closest('.crow-card');
+            card.classList.toggle('expanded');
+        }
+
+        function updateStats() {
+            const totalItems = database.bins.reduce((sum, bin) => sum + bin.collectedItems.reduce((s, item) => s + item.count, 0), 0);
+            const totalTrips = database.crows.reduce((sum, crow) => sum + crow.trips.length, 0);
+            
+            document.getElementById('totalBins').textContent = database.bins.length;
+            document.getElementById('totalCrows').textContent = database.crows.length;
+            document.getElementById('totalItems').textContent = totalItems;
+            document.getElementById('totalTrips').textContent = totalTrips;
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            renderBins();
+            renderCrows();
+            updateStats();
+        });
+    </script>
+</body>
+</html>
