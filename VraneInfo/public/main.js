@@ -6,8 +6,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initParticleBackground();
     initCounters();
     initCharts();
+        initRoadmapAnimations();
     initSmoothScroll();
     initNavigation();
+    
 });
 
 // Scroll reveal animation
@@ -29,6 +31,15 @@ function initScrollReveal() {
         revealObserver.observe(element);
     });
 }
+
+function initRoadmapAnimations() {
+  const timelineYears = document.querySelectorAll('[class*="from-amber"], [class*="from-orange"], [class*="from-red"]');
+  
+  timelineYears.forEach((element, index) => {
+    element.style.animationDelay = `${index * 0.15}s`;
+  });
+}
+
 
 // Particle background animation using p5.js
 function initParticleBackground() {
