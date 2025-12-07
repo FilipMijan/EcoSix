@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kljun.me - Prirodna inteligencija. Pametna ekologija.</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'crow-dark': '#2D3748',
+                        'eco-green': '#38A169',
+                        'peanut-orange': '#F6AD55',
+                        'clean-gray': '#F7FAFC'
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .hero-bg {
+            background: linear-gradient(135deg, #2D3748 0%, #38A169 100%);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #38A169, #F6AD55);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="font-body bg-clean-gray text-crow-dark">
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-sm z-50 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <img src="kljun_logo.png" alt="kljun.me logo" class="h-10 w-10">
+                    <span class="font-display font-bold text-xl text-crow-dark">kljun.me</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#problem" class="text-crow-dark hover:text-eco-green transition-colors">Problem</a>
+                    <a href="#solution" class="text-crow-dark hover:text-eco-green transition-colors">Rješenje</a>
+                    <a href="#technology" class="text-crow-dark hover:text-eco-green transition-colors">Tehnologija</a>
+                    <a href="#market" class="text-crow-dark hover:text-eco-green transition-colors">Tržište</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero-bg min-h-screen flex items-center justify-center relative overflow-hidden pt-16">
+        <div class="absolute inset-0 opacity-20">
+            <img src="hero_image.png" alt="Hero background" class="w-full h-full object-cover">
+        </div>
+        
+        <!-- Animated particles background -->
+        <div id="particles-container" class="absolute inset-0"></div>
+        
+        <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="reveal">
+                <h1 class="font-display font-black text-5xl md:text-7xl lg:text-8xl text-white mb-6 leading-tight">
+                    <span class="block">Prirodna</span>
+                    <span class="block text-gradient">inteligencija.</span>
+                    <span class="block">Pametna ekologija.</span>
+                </h1>
+            </div>
+            
+            <div class="reveal">
+                <p class="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
+                    Šta ako vam kažem da nam u prirodi već postoji armija malih ekoloških radnika 
+                    s inteligencijom sedmogodišnjeg djeteta, spremnih da očiste našu okolinu?
+                </p>
+            </div>
+            
+            <div class="reveal">
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <button onclick="scrollToSection('problem')" class="bg-peanut-orange hover:bg-orange-400 text-crow-dark font-semibold px-8 py-4 rounded-full text-lg transition-all transform hover:scale-105 shadow-lg">
+                        Otkrijte Više
+                    </button>
+                    <div class="flex items-center space-x-2 text-white/80">
+                        <div class="w-3 h-3 bg-eco-green rounded-full animate-pulse-slow"></div>
+                        <span class="font-mono text-sm">1000 vrana spremno za akciju</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/60 animate-bounce">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section id="problem" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="font-display font-bold text-4xl md:text-5xl text-crow-dark mb-6">
+                    Problem koji rješavamo
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Konvencionalni sistemi za upravljanje otpadom su neučinkoviti, skupi i štetni po okolinu
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="reveal">
+                    <img src="problem_visualization.png" alt="Problem vizualizacija" class="w-full rounded-2xl shadow-2xl">
+                </div>
+                
+                <div class="space-y-8">
+                    <div class="reveal">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-xl text-crow-dark mb-2">Neefikasna potrošnja resursa</h3>
+                                <p class="text-gray-600">Kamioni prikupljaju i prazne kante bez obzira na popunjenost, trošeći gorivo i vrijeme</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="reveal">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-xl text-crow-dark mb-2">Pretrpane kante</h3>
+                                <p class="text-gray-600">Pretrpane kante stvaraju zdravstvene rizike i negativan uticaj na životnu sredinu</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="reveal">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-xl text-crow-dark mb-2">Visoki troškovi</h3>
+                                <p class="text-gray-600">Milioni se troše na kompleksne IoT sisteme koji nisu održivi dugoročno</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats -->
+            <div class="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 reveal">
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-eco-green mb-2" data-count="40">0</div>
+                    <div class="text-gray-600">% ušteda na gorivu</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-eco-green mb-2" data-count="60">0</div>
+                    <div class="text-gray-600">% smanjenje emisija</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-eco-green mb-2" data-count="1000">0</div>
+                    <div class="text-gray-600">vrana u Crnoj Gori</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-eco-green mb-2" data-count="4500">0</div>
+                    <div class="text-gray-600">kila otpada</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section id="solution" class="py-20 bg-clean-gray">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="font-display font-bold text-4xl md:text-5xl text-crow-dark mb-6">
+                    Naše rješenje: <span class="text-gradient">kljun.me</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Spajamo prirodnu inteligenciju vrana s pametnom tehnologijom za održivo upravljanje otpadom
+                </p>
+            </div>
+            
+            <div class="grid lg:grid-cols-3 gap-8 mb-16">
+                <div class="bg-white rounded-2xl p-8 card-hover reveal">
+                    <div class="w-16 h-16 bg-eco-green/10 rounded-full flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-eco-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-xl text-crow-dark mb-4">Prirodna inteligencija</h3>
+                    <p class="text-gray-600 mb-6">Vrane s inteligencijom 7-godišnjeg djeteta uče da prikupljaju otpad za nagrade</p>
+                    <div class="font-mono text-sm text-eco-green">IQ: 7 godina • 1000 vrana</div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 card-hover reveal">
+                    <div class="w-16 h-16 bg-peanut-orange/10 rounded-full flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-peanut-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-xl text-crow-dark mb-4">IoT senzori</h3>
+                    <p class="text-gray-600 mb-6">Pametne kante prepoznaju predmete i nagrađuju vrane kikirikijem</p>
+                    <div class="font-mono text-sm text-peanut-orange">96% tačnost • Real-time</div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 card-hover reveal">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-xl text-crow-dark mb-4">Data analitika</h3>
+                    <p class="text-gray-600 mb-6">Praćenje kretanja vrana i analiza ekološkog uticaja u realnom vremenu</p>
+                    <div class="font-mono text-sm text-blue-600">GPS tracking • Dashboard</div>
+                </div>
+            </div>
+            
+            <!-- Interactive Demo -->
+            <div class="bg-white rounded-3xl p-8 md:p-12 reveal">
+                <h3 class="font-display font-bold text-2xl text-crow-dark mb-8 text-center">Kako to funkcioniše?</h3>
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-eco-green rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-2xl">1</div>
+                        <h4 class="font-semibold mb-2">Vrana pronalazi otpad</h4>
+                        <p class="text-sm text-gray-600">Inteligentna vrana prepoznaje predmet koji ne pripada prirodi</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-peanut-orange rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-2xl">2</div>
+                        <h4 class="font-semibold mb-2">Donosi u pametnu kantu</h4>
+                        <p class="text-sm text-gray-600">IoT senzor prepoznaje predmet i potvrđuje prijem</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-2xl">3</div>
+                        <h4 class="font-semibold mb-2">Dobija nagradu</h4>
+                        <p class="text-sm text-gray-600">Automatski dispencer izdaje kikiriki kao nagradu</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-2xl">4</div>
+                        <h4 class="font-semibold mb-2">Prikupljaju se podaci</h4>
+                        <p class="text-sm text-gray-600">Sistem beleži lokaciju, vrstu otpada i uticaj</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section id="technology" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="font-display font-bold text-4xl md:text-5xl text-crow-dark mb-6">
+                    Tehnološka arhitektura
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Kombinacija najnovijih IoT tehnologija, mašinskog učenja i prirodne inteligencije
+                </p>
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-12 items-center mb-16">
+                <div class="reveal">
+                    <img src="technology_diagram.png" alt="Tehnološki dijagram" class="w-full rounded-2xl shadow-2xl">
+                </div>
+                
+                <div class="space-y-8">
+                    <div class="reveal">
+                        <h3 class="font-semibold text-2xl text-crow-dark mb-4">Pametne kante</h3>
+                        <ul class="space-y-3 text-gray-600">
+                            <li class="flex items-center space-x-3">
+                                <div class="w-2 h-2 bg-eco-green rounded-full"></div>
+                                <span>Ultrasonični senzori za praćenje popunjenosti</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <div class="w-2 h-2 bg-eco-green rounded-full"></div>
+                                <span>Kamera s AI za prepoznavanje predmeta</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <div class="w-2 h-2 bg-eco-green rounded-full"></div>
+                                <span>Dispencer za nagrade (kikiriki)</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <div class="w-2 h-2 bg-eco-green rounded-full"></div>
+                                <span>LoRaWAN komunikacija</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="reveal">
+                        <h3 class="font-semibold text-2xl text-crow-dark mb-4">GPS praćenje</h3>
+                        <ul class="space-y-3 text-gray-600">
+                            <li class="flex items-center space-x-3">
+                                <div class="w-2 h-2 bg-peanut-orange rounded-full"></div>
+                                <span>Lagani GPS/GSM tagovi (&lt;5% težine ptice)</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <div class="w-2 h-2 bg-peanut-orange rounded-full"></div>
+                                <span>Solarno punjenje za dugotrajnost</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <div class="w-2 h-2 bg-peanut-orange rounded-full"></div>
+                                <span>Real-time praćenje kretanja</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <div class="w-2 h-2 bg-peanut-orange rounded-full"></div>
+                                <span>Analiza migracionih puteva</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Interactive Chart -->
+            <div class="bg-clean-gray rounded-3xl p-8 reveal">
+                <h3 class="font-semibold text-2xl text-crow-dark mb-8 text-center">Efikasnost sistema</h3>
+                <div id="efficiency-chart" class="w-full h-96"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Market Section -->
+    <section id="market" class="py-20 bg-clean-gray">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="font-display font-bold text-4xl md:text-5xl text-crow-dark mb-6">
+                    Tržišni potencijal
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Proširivost na Balkan i EU sa ogromnim potencijalom za rast
+                </p>
+            </div>
+            
+            <div class="grid lg:grid-cols-3 gap-8 mb-16">
+                <div class="bg-white rounded-2xl p-8 card-hover reveal">
+                    <div class="text-center mb-6">
+                        <div class="text-4xl font-bold text-eco-green mb-2">€2.5M</div>
+                        <div class="text-gray-600">Tržište Crne Gore</div>
+                    </div>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>• 1000+ vrana spremno za trening</li>
+                        <li>• 15 glavnih gradova</li>
+                        <li>• Pilot program za 6 mjeseci</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 card-hover reveal">
+                    <div class="text-center mb-6">
+                        <div class="text-4xl font-bold text-peanut-orange mb-2">€25M</div>
+                        <div class="text-gray-600">Balkansko tržište</div>
+                    </div>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>• 10,000+ vrana region</li>
+                        <li>• 50+ gradova</li>
+                        <li>• Proširivost za 2 godine</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 card-hover reveal">
+                    <div class="text-center mb-6">
+                        <div class="text-4xl font-bold text-blue-600 mb-2">€250M</div>
+                        <div class="text-gray-600">EU tržište</div>
+                    </div>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>• 100,000+ vrana</li>
+                        <li>• 500+ gradova</li>
+                        <li>• 5-godišnji plan ekspanzije</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Market Chart -->
+            <div class="bg-white rounded-3xl p-8 reveal">
+                <h3 class="font-semibold text-2xl text-crow-dark mb-8 text-center">Projekcija rasta</h3>
+                <div id="market-chart" class="w-full h-96"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="font-display font-bold text-4xl md:text-5xl text-crow-dark mb-6">
+                    Naš tim
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Kombinacija ekspertize iz oblasti ekologije, tehnologije i biznisa
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center reveal">
+                    <div class="w-32 h-32 bg-eco-green/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-16 h-16 text-eco-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-xl text-crow-dark mb-2">Ornitolog</h3>
+                    <p class="text-gray-600 mb-4">Ekspert za ponašanje vrana i trening životinja</p>
+                    <div class="text-sm text-eco-green font-mono">15+ godina iskustva</div>
+                </div>
+                
+                <div class="text-center reveal">
+                    <div class="w-32 h-32 bg-peanut-orange/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-16 h-16 text-peanut-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-xl text-crow-dark mb-2">IoT Inženjer</h3>
+                    <p class="text-gray-600 mb-4">Stručnjak za senzore, komunikaciju i IoT arhitekturu</p>
+                    <div class="text-sm text-peanut-orange font-mono">10+ godina iskustva</div>
+                </div>
+                
+                <div class="text-center reveal">
+                    <div class="w-32 h-32 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-xl text-crow-dark mb-2">Biznis Stručnjak</h3>
+                    <p class="text-gray-600 mb-4">Iskustvo u skaliranju ekoloških startup projekata</p>
+                    <div class="text-sm text-blue-600 font-mono">8+ godina iskustva</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="cta" class="py-20 hero-bg">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="reveal">
+                <h2 class="font-display font-black text-4xl md:text-6xl text-white mb-6">
+                    Spremni da očistimo svijet zajedno?
+                </h2>
+            </div>
+            
+            <div class="reveal">
+                <p class="text-xl text-white/90 mb-12 max-w-2xl mx-auto">
+                    Pridružite nam se u revoluciji ekološkog upravljanja otpadom. 
+                    Priroda nam je pružila rješenje - mi ga samo pametno koristimo.
+                </p>
+            </div>
+            
+            <div class="reveal">
+                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                    <button class="bg-peanut-orange hover:bg-orange-400 text-crow-dark font-bold px-10 py-5 rounded-full text-xl transition-all transform hover:scale-105 shadow-2xl">
+                        Počnimo Pilot Program
+                    </button>
+                    <div class="text-white/80">
+                        <div class="font-mono text-sm">kljun.me - Prirodna inteligencija. Pametna ekologija.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-16 grid grid-cols-3 gap-8 reveal">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-peanut-orange mb-2">4 500kg</div>
+                    <div class="text-white/80 text-sm">otpada mjesečno</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-peanut-orange mb-2">€2.5M</div>
+                    <div class="text-white/80 text-sm">tržišni potencijal</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-peanut-orange mb-2">6</div>
+                    <div class="text-white/80 text-sm">mjeseci do pilota</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-crow-dark py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                    <img src="kljun_logo.png" alt="kljun.me logo" class="h-8 w-8">
+                    <span class="font-display font-bold text-xl text-white">kljun.me</span>
+                </div>
+                <div class="text-white/60 text-sm">
+                    © 2024 kljun.me - Prirodna inteligencija. Pametna ekologija.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>
